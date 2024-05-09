@@ -1,0 +1,8 @@
+FROM sbtscala/scala-sbt:graalvm-ce-22.3.3-b1-java17_1.9.6_2.13.12 as build
+COPY . /persons
+WORKDIR /persons/backend
+
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
+
+CMD sbt test

@@ -1,18 +1,28 @@
-version: "3"
 services:
-  postgres:
-    image: library/postgres:13
-    container_name: postgres
-    restart: on-failure
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: "postgres"
-      POSTGRES_DB: postgres
-    volumes:
-      - db-data:/var/lib/postgresql/data
-      - ./postgres/:/docker-entrypoint-initdb.d/
+  persons-backend:
+    build:
+      context: backend
+    restart: unless-stopped
     ports:
-      - "5432:5432"
+      - 8081:8081
+    environment:
+      db_url: "jdbc:postgresql://persons-db:5432/persons"
+      app_port: 8081
+    depends_on:
+      - persons-db
+
+  persons-db:
+    build:
+      context: db
+    restart: unless-stopped
+    ports:
+      - 5777:5432
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: persons
+    volumes:
+      - main_db:/var/lib/postgresql
 
 volumes:
-  db-data:
+  main_db:

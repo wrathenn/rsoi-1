@@ -9,13 +9,22 @@ on:
 jobs:
   build:
     name: Autograding
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       # TODO build, test and deploy project
+
+      - name: Creates docker images
+        run: docker compose build
+
+      - name: Deploys project
+        run: docker compose up --build -d
+
+      - name: Run unit tests
+        run: docker build . -t tests-persons -f ./backend/Dockerfile-Tests && docker run tests-persons
 
       - name: Run API Tests
         uses: matt-ball/newman-action@master
@@ -30,6 +39,7 @@ jobs:
         continue-on-error: true
 
       - name: Github auto grader mark
+        continue-on-error: true
         uses: Romanow/google-sheet-autograder-marker@v1.0
         with:
           google_token: ${{secrets.GOOGLE_API_KEY}}
